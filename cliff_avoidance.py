@@ -40,9 +40,17 @@ board = reader.get_mesh('Board')
 floor_left = reader.get_mesh('DepthLeft')
 floor_right= reader.get_mesh('DepthRight')
 
+points_reader = rc.graphics.WavefrontReader(rc.graphics.resources.obj_grid3D)
+points = points_reader.get_mesh('Grid3D', centered=True)
+points.local.position[1] -= 1
+points.local.scale = 3.
+points.drawstyle = 'point'
+points.point_size = 10
+
+
 floor_right.local.position[1] -= 2.
 
-meshes = [walls, board, floor_left, floor_right]
+meshes = [walls, board, floor_left, floor_right, points]
 
 # Put an image texture on the walls and floors
 for mesh in [walls, floor_left, floor_right]:
