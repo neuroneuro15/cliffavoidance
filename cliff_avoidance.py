@@ -2,6 +2,7 @@ from psychopy import event
 import natnetclient
 import ratcave as rc
 import numpy as np
+import cliff_utills
 
 from os import path
 
@@ -10,6 +11,7 @@ import warnings
 np.set_printoptions(precision=2, suppress=True)
 
 resource_path = 'Objects'
+
 
 # Connect to Motive and Set Rigid Bodies to Track
 tracker = natnetclient.NatClient()
@@ -30,8 +32,12 @@ board = reader.get_mesh('Board')
 floor_left = reader.get_mesh('DepthLeft')
 floor_right= reader.get_mesh('DepthRight')
 
-
-floor_right.local.y -= 2.
+# Use a Pseudo-Random order for determining which side the deep floor should be on.
+side_bool = cliff_utills.read_and_pop_pickle_list('side_order_list.pickle')
+if side_bool:
+    floor_right.local.y -= 1.5
+else:
+    floor_left.local.y -= 1.5
 
 meshes = [walls, board, floor_left, floor_right]#, points]
 
