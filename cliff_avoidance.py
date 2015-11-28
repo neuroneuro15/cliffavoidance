@@ -18,16 +18,7 @@ rat_rb = motive.get_rigid_bodies()['CalibWand']
 arena_rb = motive.get_rigid_bodies()['Arena']
 
 # Realign everything to the arena, for proper positioning
-for attempt in range(4):
-    arena_rb.reset_orientation()
-    motive.update()
-    if arena_rb.rotation_global[1] < .2:
-        break
-else:
-    raise AssertionError("Couldn't reset orientation properly after 4 tries.\nCurrent Rotation: {}".format(arena_rb.rotation_global))
-
-arena_markers = np.array(arena_rb.point_cloud_markers)
-additional_rotation = rc.utils.rotate_to_var(arena_markers)
+additional_rotation = rc.utils.correct_orientation_motivepy(arena_rb)
 
 # Create Arena
 arena_reader = rc.graphics.WavefrontReader(rc.graphics.resources.obj_arena)
@@ -40,28 +31,17 @@ board = reader.get_mesh('Board')
 floor_left = reader.get_mesh('DepthLeft')
 floor_right= reader.get_mesh('DepthRight')
 
-points_reader = rc.graphics.WavefrontReader(rc.graphics.resources.obj_grid3D)
-points = points_reader.get_mesh('Grid3D', centered=True)
-points.local.position[1] -= 1
-points.local.scale = 3.
-points.drawstyle = 'point'
-points.point_size = 10
 
+floor_right.local.y -= 2.
 
-floor_right.local.position[1] -= 2.
-
-meshes = [walls, board, floor_left, floor_right, points]
+meshes = [walls, board, floor_left, floor_right]#, points]
 
 # Put an image texture on the walls and floors
 for mesh in [walls, floor_left, floor_right]:
     mesh.load_texture(path.join(resource_path, 'uvgrid.png'))
 
 
-
-for mesh in meshes + [arena]:
-    mesh.world.position = arena_rb.location
-    mesh.world.rotation = arena_rb.rotation_global
-    mesh.world.rotation[1] += additional_rotation
+rc.utils.update_world_position_motivepy(meshes + [arena], arena_rb, additional_rotation)
 
 
 # Build ratCAVE Scenes
