@@ -1,17 +1,10 @@
-from psychopy import event
 import natnetclient
 import ratcave as rc
 import numpy as np
 import cliff_utills
 
 from os import path
-
-import warnings
-
-np.set_printoptions(precision=2, suppress=True)
-
-resource_path = 'Objects'
-
+from psychopy import event
 
 # Connect to Motive and Set Rigid Bodies to Track
 tracker = natnetclient.NatClient()
@@ -26,7 +19,7 @@ arena_reader = rc.graphics.WavefrontReader(rc.graphics.resources.obj_arena)
 arena = arena_reader.get_mesh('Arena', lighting=True, centered=False)
 
 # Import Cliff Avoidance objects
-reader = rc.graphics.WavefrontReader(path.join(resource_path, 'CliffAvoidance.obj'))
+reader = rc.graphics.WavefrontReader(path.join('Objects', 'CliffAvoidance.obj'))
 walls = reader.get_mesh('FakeArena')
 board = reader.get_mesh('Board')
 floor_left = reader.get_mesh('DepthLeft')
@@ -43,7 +36,7 @@ meshes = [walls, board, floor_left, floor_right]#, points]
 
 # Put an image texture on the walls and floors
 for mesh in [walls, floor_left, floor_right]:
-    mesh.load_texture(path.join(resource_path, 'uvgrid.png'))
+    mesh.load_texture(rc.graphics.resources.img_uvgrid)
 
 
 rc.utils.update_world_position_natnet(meshes + [arena], arena_rb, additional_rotation)
@@ -65,24 +58,16 @@ virtual_scene.bgColor.rgb = .1, 0., .1
 
 
 # Build ratCAVE Window
-window = rc.graphics.Window(active_scene, screen=1, fullscr=True,
-                            virtual_scene=virtual_scene,
-                            shadow_rendering=False)
+window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
 
-
-# Draw update function
-def graphics_update():
-    virtual_scene.camera.position = rat_rb.position
-    window.draw()
-    window.flip()
-
-
-# Set Floor Height
-warnings.warn("NotImplementedWarning: Floors are currently set at default height!")
 
 # Save Data
-warnings.warn("NotImplementedWarning: No data is being saved yet!  Don't use for production!")
+print('Please start Motive recording before continuing!')
+while not tracker.is_recording:
+    pass
 
 # Main Experiment Loop
 while 'escape' not in event.getKeys():
-    graphics_update()
+    virtual_scene.camera.position = rat_rb.position
+    window.draw()
+    window.flip()
