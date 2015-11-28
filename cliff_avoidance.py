@@ -6,6 +6,9 @@ import cliff_utills
 from os import path
 from psychopy import event
 
+# Parameters
+floor_depth = 1.5
+
 # Connect to Motive and Set Rigid Bodies to Track
 tracker = natnetclient.NatClient()
 rat_rb = tracker.rigid_bodies['CalibWand']
@@ -27,10 +30,8 @@ floor_right= reader.get_mesh('DepthRight')
 
 # Use a Pseudo-Random order for determining which side the deep floor should be on.
 side_bool = cliff_utills.read_and_pop_pickle_list('side_order_list.pickle')
-if side_bool:
-    floor_right.local.y -= 1.5
-else:
-    floor_left.local.y -= 1.5
+floor_to_change = floor_right if side_bool else floor_left
+floor_to_change.local.y -= floor_depth
 
 meshes = [walls, board, floor_left, floor_right]#, points]
 
@@ -48,6 +49,7 @@ active_scene.bgColor.rgb = 0., .3, 0.
 active_scene.camera = rc.graphics.projector
 active_scene.camera.fov_y = 27.8
 active_scene.light.position = active_scene.camera.position
+active_scene.light.rotation = active_scene.camera.rotation
 arena.cubemap = True
 
 virtual_scene = rc.graphics.Scene(meshes)
