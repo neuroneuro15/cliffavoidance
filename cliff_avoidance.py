@@ -1,5 +1,5 @@
 from psychopy import event
-import motive
+import natnetclient
 import ratcave as rc
 import numpy as np
 
@@ -11,14 +11,13 @@ np.set_printoptions(precision=2, suppress=True)
 
 resource_path = 'Objects'
 
-# Load Motive file and Set Rigid Bodies to Track
-motive.load_project("vr_demo.ttp")
-motive.update()
-rat_rb = motive.get_rigid_bodies()['CalibWand']
-arena_rb = motive.get_rigid_bodies()['Arena']
+# Connect to Motive and Set Rigid Bodies to Track
+tracker = natnetclient.NatClient()
+rat_rb = tracker.rigid_bodies['CalibWand']
+arena_rb = tracker.rigid_bodies['Arena']
 
 # Realign everything to the arena, for proper positioning
-additional_rotation = rc.utils.correct_orientation_motivepy(arena_rb)
+additional_rotation = rc.utils.correct_orientation_natnet(arena_rb)
 
 # Create Arena
 arena_reader = rc.graphics.WavefrontReader(rc.graphics.resources.obj_arena)
@@ -41,7 +40,7 @@ for mesh in [walls, floor_left, floor_right]:
     mesh.load_texture(path.join(resource_path, 'uvgrid.png'))
 
 
-rc.utils.update_world_position_motivepy(meshes + [arena], arena_rb, additional_rotation)
+rc.utils.update_world_position_natnet(meshes + [arena], arena_rb, additional_rotation)
 
 
 # Build ratCAVE Scenes
@@ -67,8 +66,7 @@ window = rc.graphics.Window(active_scene, screen=1, fullscr=True,
 
 # Draw update function
 def graphics_update():
-    motive.update()
-    virtual_scene.camera.position = rat_rb.location
+    virtual_scene.camera.position = rat_rb.position
     window.draw()
     window.flip()
 
