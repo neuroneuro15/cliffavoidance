@@ -14,9 +14,6 @@ tracker = natnetclient.NatClient()
 rat_rb = tracker.rigid_bodies['CalibWand']
 arena_rb = tracker.rigid_bodies['Arena']
 
-# Realign everything to the arena, for proper positioning
-additional_rotation = rc.utils.correct_orientation_natnet(arena_rb)
-
 # Create Arena
 arena_reader = rc.graphics.WavefrontReader(rc.graphics.resources.obj_arena)
 arena = arena_reader.get_mesh('Arena', lighting=True, centered=False)
@@ -39,9 +36,9 @@ meshes = [walls, board, floor_left, floor_right]#, points]
 for mesh in [walls, floor_left, floor_right]:
     mesh.load_texture(rc.graphics.resources.img_uvgrid)
 
-
+# Realign everything to the arena, for proper positioning
+additional_rotation = rc.utils.correct_orientation_natnet(arena_rb)
 rc.utils.update_world_position_natnet(meshes + [arena], arena_rb, additional_rotation)
-
 
 # Build ratCAVE Scenes
 active_scene = rc.graphics.Scene([arena, board])
@@ -64,9 +61,9 @@ window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=
 
 
 # Save Data
-print('Please start Motive recording before continuing!')
-while not tracker.is_recording:
-    pass
+# print('Please start Motive recording before continuing!')
+# while not tracker.is_recording:
+#     pass
 
 # Main Experiment Loop
 while 'escape' not in event.getKeys():
