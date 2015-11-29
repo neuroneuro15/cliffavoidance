@@ -4,7 +4,20 @@ import numpy as np
 import cliff_utills
 
 from os import path
-from psychopy import event
+from psychopy import event, gui
+
+
+# Note: Collect Metadata (subject, mainly, and Session Parameters) for the log
+metadata = {'Experiment': 'Cliff_Avoidance',
+            'Experimenter': 'Nicholas A. Del Grosso',
+            'Rat': ['Test', 'Nessie', 'FuzzPatch', 'FlatWhite', 'Bridger'],
+            'Cliff Depth': 1.5,
+            'Cliff Side T-R, F-L': cliff_utills.read_and_pop_pickle_list('side_order_list.pickle')
+            }
+
+dlg = gui.DlgFromDict(metadata, 'Input Parameters:')
+if not dlg.OK:
+    sys.exit()
 
 # Parameters
 floor_depth = 1.5
@@ -24,9 +37,8 @@ vir_meshes = reader.get_meshes(['FakeArena', 'Board', 'DepthLeft', 'DepthRight']
 [vir_meshes[name].load_texture(rc.graphics.resources.img_uvgrid) for name in vir_meshes]  # Put an image texture on the walls and floors
 
 # Use a Pseudo-Random order for determining which side the deep floor should be on.
-side_bool = cliff_utills.read_and_pop_pickle_list('side_order_list.pickle')
-floor_to_change = vir_meshes['DepthRight'] if side_bool else vir_meshes['DepthLeft']
-floor_to_change.local.y -= floor_depth
+floor_to_change = vir_meshes['DepthRight'] if metadata['Cliff Side T-R, F-L'] else vir_meshes['DepthLeft']
+floor_to_change.local.y -= metadata['Cliff Depth']
 
 # Realign everything to the arena, for proper positioning
 additional_rotation = rc.utils.correct_orientation_natnet(arena_rb)
@@ -44,7 +56,10 @@ window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=
 
 # Main Experiment Loop
 tracker.wait_for_recording_start()
-while 'escape' not in event.getKeys():
-    virtual_scene.camera.position = rat_rb.position
-    window.draw()
-    window.flip()
+with rc.graphics.Logger(scenes=[active_scene, virtual_scene], exp_name=metadata['Experiment'], log_directory=os.path.join('.', 'logs'),
+                     metadata_dict=metadata) as logger:
+    while 'escape' not in event.getKeys():
+        virtual_scene.camera.position = rat_rb.position
+        window.draw()
+        logger.write()
+        window.flip()
