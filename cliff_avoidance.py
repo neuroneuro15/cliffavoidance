@@ -55,8 +55,8 @@ arena.cubemap = True
 window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
 
 # Main Experiment Loop
-tracker.wait_for_recording_start()
-with rc.graphics.Logger(scenes=[active_scene, virtual_scene], exp_name=metadata['Experiment'], log_directory=os.path.join('.', 'logs'),
+tracker.wait_for_recording_start(debug_mode=metadata['Rat']=='Test')
+with rc.graphics.Logger(scenes=[active_scene, virtual_scene], exp_name=metadata['Experiment'], log_directory=path.join('.', 'logs'),
                      metadata_dict=metadata) as logger:
     while 'escape' not in event.getKeys():
         virtual_scene.camera.position = rat_rb.position
