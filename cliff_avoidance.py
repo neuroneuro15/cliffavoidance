@@ -35,7 +35,6 @@ rc.utils.update_world_position_natnet(vir_meshes.values() + [arena], arena_rb, a
 # Build ratCAVE Scenes
 active_scene = rc.graphics.Scene([arena, vir_meshes['Board']], bgColor=(0., .3, 0., 1.))
 active_scene.camera = rc.graphics.projector
-active_scene.camera.fov_y = 27.8
 active_scene.light.position = active_scene.camera.position
 active_scene.light.rotation = active_scene.camera.rotation
 arena.cubemap = True
