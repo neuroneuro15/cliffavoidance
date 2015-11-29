@@ -20,40 +20,29 @@ arena = arena_reader.get_mesh('Arena', lighting=True, centered=False)
 
 # Import Cliff Avoidance objects
 reader = rc.graphics.WavefrontReader(path.join('Objects', 'CliffAvoidance.obj'))
-walls = reader.get_mesh('FakeArena')
-board = reader.get_mesh('Board')
-floor_left = reader.get_mesh('DepthLeft')
-floor_right= reader.get_mesh('DepthRight')
+vir_meshes = reader.get_meshes(['FakeArena', 'Board', 'DepthLeft', 'DepthRight'])
+[vir_meshes[name].load_texture(rc.graphics.resources.img_uvgrid) for name in vir_meshes]  # Put an image texture on the walls and floors
 
 # Use a Pseudo-Random order for determining which side the deep floor should be on.
 side_bool = cliff_utills.read_and_pop_pickle_list('side_order_list.pickle')
-floor_to_change = floor_right if side_bool else floor_left
+floor_to_change = vir_meshes['DepthRight'] if side_bool else vir_meshes['DepthLeft']
 floor_to_change.local.y -= floor_depth
-
-meshes = [walls, board, floor_left, floor_right]#, points]
-
-# Put an image texture on the walls and floors
-for mesh in [walls, floor_left, floor_right]:
-    mesh.load_texture(rc.graphics.resources.img_uvgrid)
 
 # Realign everything to the arena, for proper positioning
 additional_rotation = rc.utils.correct_orientation_natnet(arena_rb)
-rc.utils.update_world_position_natnet(meshes + [arena], arena_rb, additional_rotation)
+rc.utils.update_world_position_natnet(vir_meshes.values() + [arena], arena_rb, additional_rotation)
 
 # Build ratCAVE Scenes
-active_scene = rc.graphics.Scene([arena, board])
-active_scene.bgColor.rgb = 0., .3, 0.
+active_scene = rc.graphics.Scene([arena, vir_meshes['Board']], bgColor=(0., .3, 0., 1.))
 active_scene.camera = rc.graphics.projector
 active_scene.camera.fov_y = 27.8
 active_scene.light.position = active_scene.camera.position
 active_scene.light.rotation = active_scene.camera.rotation
 arena.cubemap = True
 
-virtual_scene = rc.graphics.Scene(meshes)
+virtual_scene = rc.graphics.Scene(vir_meshes.values(), bgColor = (.1, 0., .1, 1.))
 virtual_scene.light.position = active_scene.camera.position
 virtual_scene.light.rotation = active_scene.camera.rotation
-virtual_scene.bgColor.rgb = .1, 0., .1
-#virtual_scene.camera.zFar = 4.
 
 
 # Build ratCAVE Window
