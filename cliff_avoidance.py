@@ -47,13 +47,8 @@ virtual_scene.light.rotation = active_scene.camera.rotation
 # Build ratCAVE Window
 window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
 
-
-# Save Data
-# print('Please start Motive recording before continuing!')
-# while not tracker.is_recording:
-#     pass
-
 # Main Experiment Loop
+tracker.wait_for_recording_start()
 while 'escape' not in event.getKeys():
     virtual_scene.camera.position = rat_rb.position
     window.draw()
