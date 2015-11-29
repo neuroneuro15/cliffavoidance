@@ -2,17 +2,20 @@ import natnetclient
 import ratcave as rc
 import numpy as np
 import cliff_utills
-
+import datetime
 from os import path
 from psychopy import event, gui
 
+# Connect to Motive
+tracker = natnetclient.NatClient()
 
 # Note: Collect Metadata (subject, mainly, and Session Parameters) for the log
 metadata = {'Experiment': 'Cliff_Avoidance',
             'Experimenter': 'Nicholas A. Del Grosso',
             'Rat': ['Test', 'Nessie', 'FuzzPatch', 'FlatWhite', 'Bridger'],
             'Cliff Depth': 1.5,
-            'Cliff Side T-R, F-L': cliff_utills.read_and_pop_pickle_list('side_order_list.pickle')
+            'Cliff Side T-R, F-L': cliff_utills.read_and_pop_pickle_list('side_order_list.pickle'),
+            'Rat Rigid Body': ['Rat']+tracker.rigid_bodies.keys()
             }
 
 dlg = gui.DlgFromDict(metadata, 'Input Parameters:')
@@ -22,9 +25,8 @@ if not dlg.OK:
 # Parameters
 floor_depth = 1.5
 
-# Connect to Motive and Set Rigid Bodies to Track
-tracker = natnetclient.NatClient()
-rat_rb = tracker.rigid_bodies['CalibWand']
+# Set Rigid Bodies to Track
+rat_rb = tracker.rigid_bodies[metadata['Rat Rigid Body']]
 arena_rb = tracker.rigid_bodies['Arena']
 
 # Create Arena
@@ -55,7 +57,15 @@ arena.cubemap = True
 window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
 
 # Main Experiment Loop
+tracker.set_take_file_name(metadata['Experiment'] + datetime.datetime.today().strftime('_%Y-%m-%d_%H-%M-%S') + '.take')
 tracker.wait_for_recording_start(debug_mode=metadata['Rat']=='Test')
+
+# Note: Don't start recording/timing until rat has been placed in the arena.
+print("Waiting for rat to enter trackable area before beginning the simulation...")
+while not rat_rb.seen:
+    pass
+print("...Rat Detected!")
+
 with rc.graphics.Logger(scenes=[active_scene, virtual_scene], exp_name=metadata['Experiment'], log_directory=path.join('.', 'logs'),
                      metadata_dict=metadata) as logger:
     while 'escape' not in event.getKeys():
