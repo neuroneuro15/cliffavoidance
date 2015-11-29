@@ -33,16 +33,11 @@ additional_rotation = rc.utils.correct_orientation_natnet(arena_rb)
 rc.utils.update_world_position_natnet(vir_meshes.values() + [arena], arena_rb, additional_rotation)
 
 # Build ratCAVE Scenes
-active_scene = rc.graphics.Scene([arena, vir_meshes['Board']], bgColor=(0., .3, 0., 1.))
-active_scene.camera = rc.graphics.projector
-active_scene.light.position = active_scene.camera.position
-active_scene.light.rotation = active_scene.camera.rotation
+active_scene = rc.graphics.Scene([arena, vir_meshes['Board']], bgColor=(0., .3, 0., 1.),
+                                 camera=rc.graphics.projector, light=rc.graphics.projector)
+
+virtual_scene = rc.graphics.Scene(vir_meshes.values(), light=rc.graphics.projector, bgColor = (.1, 0., .1, 1.))
 arena.cubemap = True
-
-virtual_scene = rc.graphics.Scene(vir_meshes.values(), bgColor = (.1, 0., .1, 1.))
-virtual_scene.light.position = active_scene.camera.position
-virtual_scene.light.rotation = active_scene.camera.rotation
-
 
 # Build ratCAVE Window
 window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
