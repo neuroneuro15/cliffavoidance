@@ -54,7 +54,7 @@ arena.cubemap = True
 window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
 
 # Main Experiment Loop
-tracker.set_take_file_name(metadata['Experiment'] + datetime.datetime.today().strftime('_%Y-%m-%d_%H-%M-%S') + '.take')
+tracker.set_take_file_name('_'.join([metadata['Experiment'], metadata['Rat'], datetime.datetime.today().strftime('%Y-%m-%d_%H-%M-%S')]) + '.take')
 tracker.wait_for_recording_start(debug_mode=metadata['Rat']=='Test')
 
 # Note: Don't start recording/timing until rat has been placed in the arena.
