@@ -22,9 +22,6 @@ dlg = gui.DlgFromDict(metadata, 'Input Parameters:')
 if not dlg.OK:
     sys.exit()
 
-# Parameters
-floor_depth = 1.5
-
 # Set Rigid Bodies to Track
 rat_rb = tracker.rigid_bodies[metadata['Rat Rigid Body']]
 arena_rb = tracker.rigid_bodies['Arena']
