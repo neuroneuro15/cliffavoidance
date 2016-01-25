@@ -27,13 +27,13 @@ rat_rb = tracker.rigid_bodies[metadata['Rat Rigid Body']]
 arena_rb = tracker.rigid_bodies['Arena']
 
 # Create Arena
-arena_reader = rc.graphics.WavefrontReader(rc.graphics.resources.obj_arena)
+arena_reader = rc.WavefrontReader(rc.resources.obj_arena)
 arena = arena_reader.get_mesh('Arena', lighting=True, centered=False)
 
 # Import Cliff Avoidance objects
-reader = rc.graphics.WavefrontReader(path.join('Objects', 'CliffAvoidance.obj'))
+reader = rc.WavefrontReader(path.join('Objects', 'CliffAvoidance.obj'))
 vir_meshes = reader.get_meshes(['FakeArena', 'DepthLeft', 'DepthRight'])
-[vir_meshes[name].load_texture(rc.graphics.resources.img_uvgrid) for name in vir_meshes]  # Put an image texture on the walls and floors
+[vir_meshes[name].load_texture(rc.resources.img_uvgrid) for name in vir_meshes]  # Put an image texture on the walls and floors
 board = reader.get_mesh('Board')
 
 # Use a Pseudo-Random order for determining which side the deep floor should be on.
@@ -45,14 +45,14 @@ additional_rotation = rc.utils.correct_orientation_natnet(arena_rb)
 rc.utils.update_world_position_natnet(vir_meshes.values() + [arena, board], arena_rb, additional_rotation)
 
 # Build ratCAVE Scenes
-active_scene = rc.graphics.Scene([arena, board], bgColor=(0., .3, 0., 1.),
-                                 camera=rc.graphics.projector, light=rc.graphics.projector)
+active_scene = rc.Scene([arena, board], bgColor=(0., .3, 0., 1.),
+                                 camera=rc.projector, light=rc.projector)
 
-virtual_scene = rc.graphics.Scene(vir_meshes.values(), light=rc.graphics.projector, bgColor = (.1, 0., .1, 1.))
+virtual_scene = rc.Scene(vir_meshes.values(), light=rc.projector, bgColor = (.1, 0., .1, 1.))
 arena.cubemap = True
 
 # Build ratCAVE Window
-window = rc.graphics.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
+window = rc.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
 
 # Main Experiment Loop
 tracker.set_take_file_name('_'.join([metadata['Experiment'], metadata['Rat'], datetime.datetime.today().strftime('%Y-%m-%d_%H-%M-%S')]) + '.take')
@@ -64,7 +64,7 @@ while not rat_rb.seen:
     pass
 print("...Rat Detected!")
 
-with rc.graphics.Logger(scenes=[active_scene, virtual_scene], exp_name=metadata['Experiment'], log_directory=path.join('.', 'logs'),
+with rc.Logger(scenes=[active_scene, virtual_scene], exp_name=metadata['Experiment'], log_directory=path.join('.', 'logs'),
                      metadata_dict=metadata) as logger:
     while 'escape' not in event.getKeys():
         virtual_scene.camera.position = rat_rb.position
