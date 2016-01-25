@@ -27,7 +27,7 @@ rat_rb = tracker.rigid_bodies[metadata['Rat Rigid Body']]
 arena_rb = tracker.rigid_bodies['Arena']
 
 # Create Arena
-arena_reader = rc.WavefrontReader(rc.resources.obj_arena)
+arena_reader = rc.WavefrontReader('arena.obj')
 arena = arena_reader.get_mesh('Arena', lighting=True, centered=False)
 
 # Import Cliff Avoidance objects
@@ -45,24 +45,26 @@ additional_rotation = rc.utils.correct_orientation_natnet(arena_rb)
 rc.utils.update_world_position_natnet(vir_meshes.values() + [arena, board], arena_rb, additional_rotation)
 
 # Build ratCAVE Scenes
+projector = rc.Camera.load('proj_cam.pickle')
+projector.rot_x = -90
 active_scene = rc.Scene([arena, board], bgColor=(0., .3, 0., 1.),
-                                 camera=rc.projector, light=rc.projector)
+                                 camera=projector, light=projector)
 
-virtual_scene = rc.Scene(vir_meshes.values(), light=rc.projector, bgColor = (.1, 0., .1, 1.))
-arena.cubemap = True
+virtual_scene = rc.Scene(vir_meshes.values(), light=projector, bgColor = (.1, 0., .1, 1.))
+# arena.cubemap = True
 
 # Build ratCAVE Window
-window = rc.Window(active_scene, screen=1, fullscr=True, virtual_scene=virtual_scene, shadow_rendering=False)
+window = rc.Window(active_scene, screen=1, fullscr=True)#, virtual_scene=virtual_scene, shadow_rendering=False)
 
 # Main Experiment Loop
 tracker.set_take_file_name('_'.join([metadata['Experiment'], metadata['Rat'], datetime.datetime.today().strftime('%Y-%m-%d_%H-%M-%S')]) + '.take')
 tracker.wait_for_recording_start(debug_mode=metadata['Rat']=='Test')
 
 # Note: Don't start recording/timing until rat has been placed in the arena.
-print("Waiting for rat to enter trackable area before beginning the simulation...")
-while not rat_rb.seen:
-    pass
-print("...Rat Detected!")
+# print("Waiting for rat to enter trackable area before beginning the simulation...")
+# while not rat_rb.seen:
+#     pass
+# print("...Rat Detected!")
 
 with rc.Logger(scenes=[active_scene, virtual_scene], exp_name=metadata['Experiment'], log_directory=path.join('.', 'logs'),
                      metadata_dict=metadata) as logger:
